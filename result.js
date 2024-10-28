@@ -3,20 +3,26 @@ function calculateResult(answers) {
   const resultCount = { A: 0, B: 0, C: 0, D: 0 };
 
   answers.forEach(answer => {
-    resultCount[answer]++;
+    if (resultCount.hasOwnProperty(answer)) {
+      resultCount[answer]++;
+    }
   });
 
   let maxCount = 0;
-  let resultType = '';
+  let resultTypes = [];
 
   for (const [type, count] of Object.entries(resultCount)) {
     if (count > maxCount) {
       maxCount = count;
-      resultType = type;
+      resultTypes = [type];
+    } else if (count === maxCount) {
+      resultTypes.push(type);
     }
   }
 
-  return resultType;
+  // 알파벳 순서로 정렬하여 첫 번째 결과를 반환
+  resultTypes.sort();
+  return resultTypes.length > 0 ? resultTypes[0] : ''; // 결과가 없을 경우 빈 문자열 반환
 }
 
 // 결과 타입에 따른 설명을 반환하는 함수
@@ -38,9 +44,15 @@ function getResultDescription(resultType) {
 // 페이지 로드 시, 결과를 계산하고 표시
 window.onload = function () {
   const answers = JSON.parse(localStorage.getItem('answers'));
-  const resultType = calculateResult(answers);
-  const resultDescription = getResultDescription(resultType);
 
-  const resultElement = document.getElementById('result');
-  resultElement.textContent = resultDescription;
+  if (answers && Array.isArray(answers)) {
+    const resultType = calculateResult(answers);
+    const resultDescription = getResultDescription(resultType);
+
+    const resultElement = document.getElementById('result');
+    resultElement.textContent = resultDescription;
+  } else {
+    const resultElement = document.getElementById('result');
+    resultElement.textContent = '보스가 지켜보고 있다~ 일이나 해라!!! ';
+  }
 };
